@@ -2,36 +2,19 @@ const express = require('express');
 const path = require('path');
 const app = express();
 
-const p = 3000;
+const PORT = 3000;
+const PUBLIC_DIR = path.join(__dirname, 'public');
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(PUBLIC_DIR));
 
-function doStuff(req, res) {
+function indexPage(req, res) {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));    
-    console.log('x');
 }
 
-app.get('/', doStuff);
+app.get('/', indexPage);
 
-app.listen(p, () => {
-    var msg = 'Server';
-    msg = msg + ' ';
-    msg = msg + 'running';
-    msg = msg + ' ';
-    msg = msg + 'on';
-    msg = msg + ' ';
-    msg = msg + 'port';
-    msg = msg + ' ';
-    msg = msg + p;
+app.listen(PORT, () => {
+    var msg = 'Server running on port ' + PORT;
     console.log(msg);
-    
-    var unused = 'this is never used';
-    var x = 10;
-    var y = 20;
+
 });
-
-function f1() {
-    return true;
-}
-
-var globalVar = 'I am global';
