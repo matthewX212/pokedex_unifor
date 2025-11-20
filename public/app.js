@@ -140,42 +140,41 @@ async function category() {
 }
 
 function UNIFOR() {
-    var g = document.getElementById('pokemonGrid');
-    g.innerHTML = '';
+    let pokemonId = document.getElementById('pokemonGrid');
+    let filter = b;
+    pokemonId.innerHTML = '';
 
-    var fil = b;
     if(e !== '') {
-        fil = fil.filter(p => {
-            return p.name.toLowerCase().includes(e.toLowerCase()) ||
-                   p.id.toString().includes(e);
+        filter = filter.filter(product => {
+            return product.name.toLowerCase().includes(e.toLowerCase()) || product.id.toString().includes(e);
         });
     }
 
-    for(var i = 0; i < fil.length; i++) {
-        var p = fil[i];
-        var fdp = document.createElement('div');
-        fdp.className = 'col-md-3';
+    for(let index = 0; index < filter.length; index++) {
+        let element = filter[index];
+        let htmlDivElement = document.createElement('div');
+        htmlDivElement.className = 'col-md-3';
 
-        var html = '<div class="c" onclick="showDetails(' + p.id + ')">';
-        html = html + '<img src="' + p.sprites.front_default + '" class="i" alt="' + p.name + '">';
-        html = html + '<h5 class="text-center">#' + p.id + ' ' + p.name.charAt(0).toUpperCase() + p.name.slice(1) + '</h5>';
+        let html = `<div class="c" onclick="showDetails(${element.id})">`;
+        html = html + '<img src="' + element.sprites.front_default + '" class="i" alt="' + element.name + '">';
+        html = html + '<h5 class="text-center">#' + element.id + ' ' + element.name.charAt(0).toUpperCase() + element.name.slice(1) + '</h5>';
         html = html + '<div class="text-center">';
 
-        for(var j = 0; j < p.types.length; j++) {
-            var typeName = p.types[j].type.name;
+        for(let index = 0; index < element.types.length; index++) {
+            let typeName = element.types[index].type.name;
             html = html + '<span class="badge type-' + typeName + '">' + typeName + '</span> ';
         }
 
         html = html + '</div></div>';
-        fdp.innerHTML = html;
-        g.appendChild(fdp);
+        htmlDivElement.innerHTML = html;
+        pokemonId.appendChild(htmlDivElement);
     }
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('pokemonGrid').style.display = 'flex';
 
     if(f1 !== '') {
-        document.getElementById('pageInfo').textContent = 'Mostrando ' + fil.length + ' pokémons';
+        document.getElementById('pageInfo').textContent = 'Mostrando ' + filter.length + ' Pokémons';
     } else {
         document.getElementById('pageInfo').textContent = 'Página ' + c;
     }
