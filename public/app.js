@@ -1,13 +1,60 @@
 var a = [];
 var b = [];
 var c = 1;
-var d = 20;
+var d = 30;
 var e = '';
 var f1 = '';
 var g = null;
 
+const state = {
+    allPokemon: [],
+    filteredPokemon: [],
+    currentPage: 1,
+    itemsPerPage: 20,
+    searchTerm: '',
+    typeFilter: '',
+};
+
 const API = 'https://pokeapi.co/api/v2/pokemon';
 const API2 = 'https://pokeapi.co/api/v2/type';
+
+const domElements = {
+    loading: document.getElementById('loading'),
+    pokemonGrid: document.getElementById('pokemonGrid'),
+    typeFilter: document.getElementById('typeFilter'),
+    searchInput: document.getElementById('s'),
+    pageInfo: document.getElementById('pageInfo'),
+    prevBtn: document.getElementById('prevBtn'),
+    nextBtn: document.getElementById('nextBtn'),
+    modal: new bootstrap.Modal(document.getElementById('m')),
+    modalTitle: document.getElementById('modalTitle'),
+    modalBody: document.getElementById('modalBody'),
+};
+
+function showLoading(show) {
+    domElements.loading.style.display = show ? 'flex' : 'none';
+    domElements.pokemonGrid.style.display = show ? 'none' : 'flex';
+}
+
+function createSkeletons() {
+    const skeletonHTML = '<div class="col-md-3"><div class="skeleton"></div></div>';
+    domElements.loading.innerHTML = skeletonHTML.repeat(state.itemsPerPage);
+}
+
+async function populateTypeFilter() {
+    try {
+        const response = await fetch(API_TYPE);
+        const data = await response.json();
+        for (const type of data.results) {
+            const option = document.createElement('option');
+            option.value = type.name;
+            option.textContent = type.name.charAt(0).toUpperCase() + type.name.slice(1);
+            domElements.typeFilter.appendChild(option);
+        }
+    } catch (error) {
+        console.error('Erro ao carregar os tipos:', error);
+    }
+}
 
 async function i() {
     document.getElementById('loading').innerHTML = '';
@@ -248,13 +295,11 @@ async function Minhe_nha(id) {
     }
 }
 
-function mor() {
-    var x = 10;
-    var y = 20;
-    return x + y;
-}
 
-var gmord = 'teste miqueias';
+async function initializeApp() {
+    createSkeletons();
+    await populateTypeFilter();
+}
 
 window.onload = function() {
     i();
