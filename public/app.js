@@ -15,8 +15,8 @@ const state = {
     typeFilter: '',
 };
 
-const API = 'https://pokeapi.co/api/v2/pokemon';
-const API2 = 'https://pokeapi.co/api/v2/type';
+const API = 'https://pokeapi.co/api/v2/pokemon'; // API with all pokemon
+const API2 = 'https://pokeapi.co/api/v2/type'; // API with pokemon category
 
 const domElements = {
     loading: document.getElementById('loading'),
@@ -109,26 +109,26 @@ async function l() {
     }
 }
 
-async function lbt() {
+async function category() {
     document.getElementById('loading').style.display = 'flex';
     document.getElementById('pokemonGrid').style.display = 'none';
 
     try {
-        var ur = API2 + '/' + f1;
-        var r = await fetch(ur);
-        var dt = await r.json();
+        const pokemonCategory = API2 + '/' + f1;
+        const response = await fetch(pokemonCategory);
+        const sizePokemonList = await response.json();
+        const listPokemon = [];
 
-        var pr = [];
-        var li = dt.pokemon.length > 100 ? 100 : dt.pokemon.length; // Limita a 100
-        for(var i = 0; i < li; i++) {
-            pr.push(fetch(dt.pokemon[i].pokemon.url));
+        const limitForPage = sizePokemonList.pokemon.length > 100 ? 100 : sizePokemonList.pokemon.length; // Limita a 100
+        for(let index = 0; index < limitForPage; index++) {
+            listPokemon.push(fetch(sizePokemonList.pokemon[index].pokemon.url));
         }
 
-        var rps = await Promise.all(pr);
+        const promise = await Promise.all(listPokemon);
         a = [];
-        for(var i = 0; i < rps.length; i++) {
-            var p = await rps[i].json();
-            a.push(p);
+        for(let index = 0; index < promise.length; index++) {
+            const pokemon = await promise[index].json();
+            a.push(pokemon);
         }
 
         b = [...a];
@@ -189,7 +189,7 @@ async function f() {
 
     // Se tem filtro de tipo, busca pokémons daquele tipo
     if(f1 !== '') {
-        await lbt();
+        await category();
     } else {
         UNIFOR();
     }
