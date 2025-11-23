@@ -56,7 +56,7 @@ async function populateTypeFilter() {
     }
 }
 
-async function i() {
+async function carregarTiposEPagina() {
     document.getElementById('loading').innerHTML = '';
     for(var i = 0; i < 20; i++) {
         document.getElementById('loading').innerHTML += '<div class="col-md-3"><div class="skeleton"></div></div>';
@@ -79,7 +79,7 @@ async function i() {
     l();
 }
 
-async function l() {
+async function carregarPokemons() {
     document.getElementById('loading').style.display = 'flex';
     document.getElementById('pokemonGrid').style.display = 'none';
 
@@ -201,7 +201,7 @@ function r() {
     e = '';
     f1 = '';
     c = 1;
-    l();
+    carregarPokemons();
 }
 
 function p1() {
@@ -210,7 +210,7 @@ function p1() {
         if(f1 !== '') {
             UNIFOR();
         } else {
-            l();
+            carregarPokemons();
         }
     }
 }
@@ -301,5 +301,5 @@ async function initializeApp() {
 }
 
 window.onload = function() {
-    i();
+    carregarTiposEPagina();
 };
