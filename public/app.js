@@ -56,7 +56,8 @@ async function populateTypeFilter() {
     }
 }
 
-async function inicializarPokemons() {
+async function carregarTiposEPagina() {
+
     document.getElementById('loading').innerHTML = '';
     for(var i = 0; i < 20; i++) {
         document.getElementById('loading').innerHTML += '<div class="col-md-3"><div class="skeleton"></div></div>';
@@ -301,5 +302,6 @@ async function initializeApp() {
 }
 
 window.onload = function() {
-    inicializarPokemons();
+    carregarTiposEPagina();
+
 };
