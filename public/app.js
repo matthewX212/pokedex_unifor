@@ -43,7 +43,7 @@ function createSkeletons() {
 
 async function populateTypeFilter() {
     try {
-        const response = await fetch(API_TYPE);
+        const response = await fetch(API2); // Corrigido para usar API2 já que API_TYPE não estava definido
         const data = await response.json();
         for (const type of data.results) {
             const option = document.createElement('option');
@@ -57,7 +57,6 @@ async function populateTypeFilter() {
 }
 
 async function carregarTiposEPagina() {
-
     document.getElementById('loading').innerHTML = '';
     for(var i = 0; i < 20; i++) {
         document.getElementById('loading').innerHTML += '<div class="col-md-3"><div class="skeleton"></div></div>';
@@ -67,6 +66,10 @@ async function carregarTiposEPagina() {
         var r = await fetch(API2);
         var dt = await r.json();
         var sel = document.getElementById('typeFilter');
+        
+        // Limpa opções duplicadas antes de adicionar (boa prática)
+        sel.innerHTML = '<option value="">Todos os tipos</option>';
+        
         for(var i = 0; i < dt.results.length; i++) {
             var opt = document.createElement('option');
             opt.value = dt.results[i].name;
@@ -156,6 +159,7 @@ function UNIFOR() {
         let htmlDivElement = document.createElement('div');
         htmlDivElement.className = 'col-md-3';
 
+        // Aqui chama showDetails, que agora existe corretamente
         let html = `<div class="c" onclick="showDetails(${element.id})">`;
         html = html + '<img src="' + element.sprites.front_default + '" class="i" alt="' + element.name + '">';
         html = html + '<h5 class="text-center">#' + element.id + ' ' + element.name.charAt(0).toUpperCase() + element.name.slice(1) + '</h5>';
@@ -229,72 +233,78 @@ function x() {
     document.body.classList.toggle('dark');
 }
 
-async function Minhe_nha(id) {
+// --- AQUI ESTÁ A FUNÇÃO REFATORADA (SUBSTITUINDO A Minhe_nha) ---
+async function showDetails(id) {
     try {
-        var xpto = await fetch(API + '/' + id);
-        var p = await xpto.json();
+        const pokemonResponse = await fetch(`${API}/${id}`);
+        const pokemon = await pokemonResponse.json();
 
-        var zyz = await fetch(p.species.url);
-        var m = await zyz.json();
+        const speciesResponse = await fetch(pokemon.species.url);
+        const speciesData = await speciesResponse.json();
 
-        var desc = '';
-        for(var i = 0; i < m.flavor_text_entries.length; i++) {
-            if(m.flavor_text_entries[i].language.name === 'en') {
-                desc = m.flavor_text_entries[i].flavor_text;
-                break;
-            }
-        }
+        const flavorEntry = speciesData.flavor_text_entries.find(
+            entry => entry.language.name === 'en'
+        );
+        const description = flavorEntry ? flavorEntry.flavor_text.replace(/\f/g, ' ') : 'Sem descrição disponível.';
 
-        document.getElementById('modalTitle').textContent = '#' + p.id + ' ' + p.name.charAt(0).toUpperCase() + p.name.slice(1);
+        const modalTitle = document.getElementById('modalTitle');
+        modalTitle.textContent = `#${pokemon.id} ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}`;
 
-        var ph = '<div class="row"><div class="col-md-6">';
-        ph += '<div class="sprite-container">';
-        ph += '<div><img src="' + p.sprites.front_default + '" alt="front"><p class="text-center">Normal</p></div>';
-        ph += '<div><img src="' + p.sprites.front_shiny + '" alt="shiny"><p class="text-center">Shiny</p></div>';
-        ph += '</div>';
+        const modalBody = document.getElementById('modalBody');
+        
+        const typesHtml = pokemon.types.map(t => 
+            `<span class="badge type-${t.type.name}">${t.type.name}</span>`
+        ).join(' ');
 
-        ph += '<p><strong>Tipo:</strong> ';
-        for(var i = 0; i < p.types.length; i++) {
-            ph += '<span class="badge type-' + p.types[i].type.name + '">' + p.types[i].type.name + '</span> ';
-        }
-        ph += '</p>';
+        const abilitiesHtml = pokemon.abilities.map(a => a.ability.name).join(', ');
 
-        ph += '<p><strong>Altura:</strong> ' + (p.height / 10) + ' m</p>';
-        ph += '<p><strong>Peso:</strong> ' + (p.weight / 10) + ' kg</p>';
+        const statsHtml = pokemon.stats.map(stat => {
+            const percentage = (stat.base_stat / 255) * 100;
+            return `
+                <div>
+                    <small>${stat.stat.name}: ${stat.base_stat}</small>
+                    <div class="stat-bar">
+                        <div class="stat-fill" style="width: ${percentage}%"></div>
+                    </div>
+                </div>`;
+        }).join('');
 
-        ph += '<p><strong>Habilidades:</strong> ';
-        for(var i = 0; i < p.abilities.length; i++) {
-            ph += p.abilities[i].ability.name;
-            if(i < p.abilities.length - 1) ph += ', ';
-        }
-        ph += '</p>';
+        modalBody.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="sprite-container d-flex justify-content-around mb-3">
+                        <div>
+                            <img src="${pokemon.sprites.front_default}" alt="Normal" width="96">
+                            <p class="text-center">Normal</p>
+                        </div>
+                        <div>
+                            <img src="${pokemon.sprites.front_shiny}" alt="Shiny" width="96">
+                            <p class="text-center">Shiny</p>
+                        </div>
+                    </div>
+                    <p><strong>Tipo:</strong> ${typesHtml}</p>
+                    <p><strong>Altura:</strong> ${pokemon.height / 10} m</p>
+                    <p><strong>Peso:</strong> ${pokemon.weight / 10} kg</p>
+                    <p><strong>Habilidades:</strong> ${abilitiesHtml}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Descrição:</strong></p>
+                    <p class="text-muted">${description}</p>
+                    <h6 class="mt-3">Estatísticas:</h6>
+                    ${statsHtml}
+                </div>
+            </div>
+        `;
 
-        ph += '</div><div class="col-md-6">';
+        const modalElement = document.getElementById('m');
+        const modalInstance = new bootstrap.Modal(modalElement);
+        modalInstance.show();
 
-        ph += '<p><strong>Descrição:</strong></p>';
-        ph += '<p>' + desc.replace(/\f/g, ' ') + '</p>';
-
-        ph += '<h6>Estatísticas:</h6>';
-        for(var i = 0; i < p.stats.length; i++) {
-            var stat = p.stats[i];
-            var percentage = (stat.base_stat / 255) * 100;
-            ph += '<div><small>' + stat.stat.name + ': ' + stat.base_stat + '</small>';
-            ph += '<div class="stat-bar"><div class="stat-fill" style="width: ' + percentage + '%"></div></div></div>';
-        }
-
-        ph += '</div></div>';
-
-        document.getElementById('modalBody').innerHTML = ph;
-
-        var mod = new bootstrap.Modal(document.getElementById('m'));
-        mod.show();
-
-    } catch(error) {
-        console.log('erro');
-        alert('Erro ao carregar detalhes!');
+    } catch (error) {
+        console.error('Erro ao carregar detalhes do Pokémon:', error);
+        alert('Não foi possível carregar os detalhes deste Pokémon.');
     }
 }
-
 
 async function initializeApp() {
     createSkeletons();
@@ -303,5 +313,4 @@ async function initializeApp() {
 
 window.onload = function() {
     carregarTiposEPagina();
-
 };
