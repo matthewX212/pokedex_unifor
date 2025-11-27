@@ -1,10 +1,10 @@
-var a = [];
-var b = [];
-var c = 1;
-var d = 30;
-var e = '';
-var f1 = '';
-var g = null;
+let pokemonList = [];
+let pokemonFilterList = [];
+let minimumPokemonPerPage = 1;
+let maximumPokemonPerPage = 20;
+let searchForPokemon = '';
+let pokemonTypes = '';
+
 
 const state = {
     allPokemon: [],
@@ -85,8 +85,8 @@ async function carregarPokemons() {
     document.getElementById('pokemonGrid').style.display = 'none';
 
     try {
-        var off = (c - 1) * d;
-        var ur = API + '?limit=' + d + '&offset=' + off;
+        var off = (minimumPokemonPerPage - 1) * maximumPokemonPerPage;
+        var ur = API + '?limit=' + maximumPokemonPerPage + '&offset=' + off;
         var r = await fetch(ur);
         var dt = await r.json();
 
@@ -96,13 +96,13 @@ async function carregarPokemons() {
         }
 
         var r = await Promise.all(pro);
-        a = [];
+        pokemonList = [];
         for(var i = 0; i < r.length; i++) {
             var pokemon = await r[i].json();
-            a.push(pokemon);
+            pokemonList.push(pokemon);
         }
 
-        b = [...a];
+        pokemonFilterList = [...pokemonList];
         UNIFOR();
     } catch(error) {
         console.log('erro ao carregar');
@@ -115,7 +115,7 @@ async function category() {
     document.getElementById('pokemonGrid').style.display = 'none';
 
     try {
-        const pokemonCategory = API2 + '/' + f1;
+        const pokemonCategory = API2 + '/' + pokemonTypes;
         const response = await fetch(pokemonCategory);
         const sizePokemonList = await response.json();
         const listPokemon = [];
@@ -126,13 +126,13 @@ async function category() {
         }
 
         const promise = await Promise.all(listPokemon);
-        a = [];
+        pokemonList = [];
         for(let index = 0; index < promise.length; index++) {
             const pokemon = await promise[index].json();
-            a.push(pokemon);
+            pokemonList.push(pokemon);
         }
 
-        b = [...a];
+        pokemonFilterList = [...pokemonList];
         UNIFOR();
     } catch(error) {
         console.log('erro ao carregar tipo');
@@ -142,12 +142,12 @@ async function category() {
 
 function UNIFOR() {
     let pokemonId = document.getElementById('pokemonGrid');
-    let filter = b;
+    let filter = pokemonFilterList;
     pokemonId.innerHTML = '';
 
-    if(e !== '') {
+    if(searchForPokemon !== '') {
         filter = filter.filter(product => {
-            return product.name.toLowerCase().includes(e.toLowerCase()) || product.id.toString().includes(e);
+            return product.name.toLowerCase().includes(searchForPokemon.toLowerCase()) || product.id.toString().includes(searchForPokemon);
         });
     }
 
@@ -174,22 +174,22 @@ function UNIFOR() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('pokemonGrid').style.display = 'flex';
 
-    if(f1 !== '') {
+    if(pokemonTypes !== '') {
         document.getElementById('pageInfo').textContent = 'Mostrando ' + filter.length + ' Pokémons';
     } else {
-        document.getElementById('pageInfo').textContent = 'Página ' + c;
+        document.getElementById('pageInfo').textContent = 'Página ' + minimumPokemonPerPage;
     }
 
-    document.getElementById('prevBtn').disabled = c === 1 || f1 !== '';
-    document.getElementById('nextBtn').disabled = f1 !== '';
+    document.getElementById('prevBtn').disabled = minimumPokemonPerPage === 1 || pokemonTypes !== '';
+    document.getElementById('nextBtn').disabled = pokemonTypes !== '';
 }
 
 async function f() {
-    e = document.getElementById('s').value;
-    f1 = document.getElementById('typeFilter').value;
+    searchForPokemon = document.getElementById('s').value;
+    pokemonTypes = document.getElementById('typeFilter').value;
 
     // Se tem filtro de tipo, busca pokémons daquele tipo
-    if(f1 !== '') {
+    if(pokemonTypes !== '') {
         await category();
     } else {
         UNIFOR();
@@ -199,16 +199,16 @@ async function f() {
 function r() {
     document.getElementById('s').value = '';
     document.getElementById('typeFilter').value = '';
-    e = '';
-    f1 = '';
-    c = 1;
+    searchForPokemon = '';
+    pokemonTypes = '';
+    minimumPokemonPerPage = 1;
     carregarPokemons();
 }
 
 function p1() {
-    if(c > 1) {
-        c--;
-        if(f1 !== '') {
+    if(minimumPokemonPerPage > 1) {
+        minimumPokemonPerPage--;
+        if(pokemonTypes !== '') {
             UNIFOR();
         } else {
             carregarPokemons();
@@ -217,8 +217,8 @@ function p1() {
 }
 
 function p2() {
-    c++;
-    if(f1 !== '') {
+    minimumPokemonPerPage++;
+    if(pokemonTypes !== '') {
         UNIFOR();
     } else {
         carregarPokemons();
